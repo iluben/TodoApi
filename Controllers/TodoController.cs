@@ -27,9 +27,22 @@ namespace TodoApi.Controllers
             return _context.Todo.ToList();
         }
 
-        //  // GET /api/todo/{id}
-        // [HttpGet("{id}", Name = "GetTodo")]
-        // public IActionResult GetById(long id) {
+         // GET /api/todo/{id}
+        [HttpGet("{id}", Name = "GetTodo")]
+        public IActionResult GetById(long id) {
+
+            var item = _context.Todo.FirstOrDefault(t => t.Id == id);
+
+            if (item == null)
+            {
+                return NotFound();
+            }
+            return new ObjectResult(item);
+        }
+
+        // // GET /api/todo/{id}
+        // [HttpGet("{id}")]
+        // public IActionResult GetById2(long id) {
 
         //     var item = _context.Todo.FirstOrDefault(t => t.Id == id);
 
@@ -40,17 +53,18 @@ namespace TodoApi.Controllers
         //     return new ObjectResult(item);
         // }
 
-        // GET /api/todo/{id}
-        [HttpGet("{id}")]
-        public IActionResult GetById2(long id) {
-
-            var item = _context.Todo.FirstOrDefault(t => t.Id == id);
-
-            if (item == null)
+        [HttpPost]
+        public IActionResult Create([FromBody] Todo item) {
+            if (item == null) 
             {
-                return NotFound();
+                return BadRequest();
             }
-            return new ObjectResult(item);
+
+            _context.Todo.Add(item);
+            _context.SaveChanges();
+
+            CreatedAtRouteResult route = CreatedAtRoute("GetTodo", new { id = item.Id }, item);
+            return route;
         }
     }
 }
